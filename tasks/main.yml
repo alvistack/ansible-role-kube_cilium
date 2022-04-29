@@ -70,7 +70,8 @@
 - name: cilium install
   ansible.builtin.shell: |
     set -euxo pipefail
-    cilium install
+    cilium install \
+      --helm-values 'cni.exclusive=false'
   args:
     executable: "/bin/bash"
   when: inventory_hostname == ansible_play_hosts[0]
