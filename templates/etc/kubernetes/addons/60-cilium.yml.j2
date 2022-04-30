@@ -543,7 +543,7 @@ spec:
                 command:
                   - "/cni-install.sh"
                   - "--enable-debug=false"
-                  - "--cni-exclusive={{ kube_cilium_cni_exclusive }}"
+                  - "--cni-exclusive={{ kube_cilium_cni_exclusive | bool | lower}}"
             preStop:
               exec:
                 command:
