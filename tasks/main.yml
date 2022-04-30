@@ -53,20 +53,6 @@
         - "."
       skip: true
 
-- name: tweak sysctl entries
-  sysctl:
-    name: "{{ item.name }}"
-    value: "{{ item.value }}"
-    state: "{{ item.state }}"
-    sysctl_file: "/etc/sysctl.conf"
-    reload: false
-  loop: "{{ kube_cilium_sysctl }}"
-  notify:
-    - kube_cilium | sysctl --system
-
-- name: flush handlers
-  ansible.builtin.meta: flush_handlers
-
 - name: cilium install
   ansible.builtin.shell: |
     set -euxo pipefail

@@ -13,9 +13,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# Entries for sysctl.
-kube_cilium_sysctl:
-  - { state: "present", name: "net.ipv4.conf.*.rp_filter", value: "0" }
-  - { state: "present", name: "net.ipv4.conf.all.rp_filter", value: "0" }
-  - { state: "present", name: "net.ipv4.conf.default.rp_filter", value: "0" }
