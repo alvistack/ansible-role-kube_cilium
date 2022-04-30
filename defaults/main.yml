@@ -20,5 +20,8 @@
 # agent downtime.
 kube_cilium_cni_exclusive: false
 
+# Configure chaining on top of other CNI plugins.
+kube_cilium_cni_chainingmode: "portmap"
+
 # Configure IP Address Management mode.
 kube_cilium_ipam_mode: "kubernetes"

@@ -136,6 +136,14 @@ data:
   tunnel: vxlan
   # Enables L7 proxy for L7 policy enforcement and visibility
   enable-l7-proxy: "true"
+  # Enable chaining with another CNI plugin
+  #
+  # Supported modes:
+  #  - none
+  #  - aws-cni
+  #  - flannel
+  #  - portmap (Enables HostPort support for Cilium)
+  cni-chaining-mode: "{{ kube_cilium_cni_chainingmode }}"
   enable-ipv4-masquerade: "true"
   enable-ipv6-masquerade: "true"
   enable-xt-socket-fallback: "true"
