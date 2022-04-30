@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Set helm values on the command line.
-kube_cilium_helm_set:
-  - "cni.exclusive=false"
+# Make Cilium take ownership over the /etc/cni/net.d directory on the
+# node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
+# ensures no Pods can be scheduled using other CNI plugins during Cilium
+# agent downtime.
+kube_cilium_cni_exclusive: false
+
+# Configure IP Address Management mode.
+kube_cilium_ipam_mode: "kubernetes"
