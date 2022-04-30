@@ -14,14 +14,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Enables pre-allocation of eBPF map values. This increases memory usage
+# but can reduce latency.
+kube_cilium_bpf_preallocatemaps: true
+
+# Configure chaining on top of other CNI plugins.
+kube_cilium_cni_chainingmode: "portmap"
+
 # Make Cilium take ownership over the /etc/cni/net.d directory on the
 # node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
 # ensures no Pods can be scheduled using other CNI plugins during Cilium
 # agent downtime.
 kube_cilium_cni_exclusive: false
 
-# Configure chaining on top of other CNI plugins.
-kube_cilium_cni_chainingmode: "portmap"
+# Enable Hubble (true by default).
+kube_cilium_hubble_enabled: false
 
 # Configure IP Address Management mode.
 kube_cilium_ipam_mode: "kubernetes"
+
+# Enable IPv4 support.
+kube_cilium_ipv4_enabled: true
+
+# Enable IPv6 support.
+kube_cilium_ipv6_enabled: false
+
+# Enables waiting for Kubernetes to provide the PodCIDR range via the
+# Kubernetes node resource.
+kube_cilium_k8s_requireipv4podcidr: true
+
+# Controls how to enable kube-proxy replacement features in BPF datapath.
+kube_cilium_kubeproxyreplacement: "probe"
+
+# Number of replicas to run for the cilium-operator deployment.
+kube_cilium_operator_replicas: 1

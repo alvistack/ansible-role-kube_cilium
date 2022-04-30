@@ -70,10 +70,10 @@ data:
   enable-policy: "default"
   # Enable IPv4 addressing. If enabled, all endpoints are allocated an IPv4
   # address.
-  enable-ipv4: "true"
+  enable-ipv4: "{{ kube_cilium_ipv4_enabled | bool | lower }}"
   # Enable IPv6 addressing. If enabled, all endpoints are allocated an IPv6
   # address.
-  enable-ipv6: "false"
+  enable-ipv6: "{{ kube_cilium_ipv6_enabled | bool | lower }}"
   # Users who wish to specify their own custom CNI configuration file must set
   # custom-cni-conf to "true", otherwise Cilium may overwrite the configuration.
   custom-cni-conf: "false"
@@ -119,7 +119,7 @@ data:
   #
   # If this option is set to "false" during an upgrade from 1.3 or earlier to
   # 1.4 or later, then it may cause one-time disruptions during the upgrade.
-  preallocate-bpf-maps: "false"
+  preallocate-bpf-maps: "{{ kube_cilium_bpf_preallocatemaps | bool | lower }}"
   # Regular expression matching compatible Istio sidecar istio-proxy
   # container image names
   sidecar-istio-proxy-image: "cilium/istio_proxy"
@@ -152,13 +152,15 @@ data:
   auto-direct-node-routes: "false"
   enable-bandwidth-manager: "false"
   enable-local-redirect-policy: "false"
-  kube-proxy-replacement: "disabled"
+  kube-proxy-replacement: "{{ kube_cilium_kubeproxyreplacement }}"
+  kube-proxy-replacement-healthz-bind-address: ""
   enable-health-check-nodeport: "true"
   node-port-bind-protection: "true"
   enable-auto-protect-node-port-range: "true"
   enable-session-affinity: "true"
   enable-l2-neigh-discovery: "true"
   arping-refresh-period: "30s"
+  k8s-require-ipv4-pod-cidr: "{{ kube_cilium_k8s_requireipv4podcidr | bool | lower }}"
   enable-endpoint-health-checking: "true"
   enable-health-checking: "true"
   enable-well-known-identities: "false"
@@ -709,7 +711,7 @@ metadata:
 spec:
   # See docs on ServerCapabilities.LeasesResourceLock in file pkg/k8s/version/version.go
   # for more details.
-  replicas: 1
+  replicas: {{ kube_cilium_operator_replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: cilium-operator
