@@ -53,26 +53,32 @@
         - "."
       skip: true
 
-- name: tweak sysctl entries
-  sysctl:
-    name: "{{ item.name }}"
-    value: "{{ item.value }}"
-    state: "{{ item.state }}"
-    sysctl_file: "/etc/sysctl.conf"
-    reload: false
-  loop: "{{ kube_cilium_sysctl }}"
-  notify:
-    - kube_cilium | sysctl --system
+- name: prepare directories
+  ansible.builtin.file:
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+    state: "{{ item.state | default('directory') }}"
+  loop:
+    - { dest: "/etc/kubernetes/addons" }
 
-- name: flush handlers
-  ansible.builtin.meta: flush_handlers
+- name: copy templates
+  ansible.builtin.template:
+    dest: "{{ item.dest }}"
+    src: "{{ item.src | default('./templates' + item.dest + '.j2') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+  loop:
+    - { dest: "/etc/kubernetes/addons/60-cilium.yml" }
 
-- name: cilium install
-  ansible.builtin.shell: |
-    set -euxo pipefail
-    cilium install
-  args:
-    executable: "/bin/bash"
-  when: inventory_hostname == ansible_play_hosts[0]
-  changed_when: false
-  failed_when: false
+- name: prepare files
+  ansible.builtin.file:
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+    state: "{{ item.state | default('file') }}"
+  loop:
+    - { dest: "/etc/kubernetes/addons/60-cilium.yml" }

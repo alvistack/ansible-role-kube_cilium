@@ -14,8 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Entries for sysctl.
-kube_cilium_sysctl:
-  - { state: "present", name: "net.ipv4.conf.*.rp_filter", value: "0" }
-  - { state: "present", name: "net.ipv4.conf.all.rp_filter", value: "0" }
-  - { state: "present", name: "net.ipv4.conf.default.rp_filter", value: "0" }
+# Make Cilium take ownership over the /etc/cni/net.d directory on the
+# node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
+# ensures no Pods can be scheduled using other CNI plugins during Cilium
+# agent downtime.
+kube_cilium_cni_exclusive: false
+
+# Configure IP Address Management mode.
+kube_cilium_ipam_mode: "kubernetes"
