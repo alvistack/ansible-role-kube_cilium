@@ -57,7 +57,8 @@
   ansible.builtin.shell: |
     set -euxo pipefail
     cilium install \
-      --helm-set 'cni.exclusive=false'
+    --helm-set 'cni.exclusive={{ kube_cilium_cni_exclusive }}' \
+    --helm-set 'ipam.operator.clusterPoolIPv4PodCIDR="{{ kube_cilium_ipam_operator_clusterpoolipv4podcidrlist }}"
   args:
     executable: "/bin/bash"
   when: inventory_hostname == ansible_play_hosts[0]
