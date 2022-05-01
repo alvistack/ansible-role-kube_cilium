@@ -133,7 +133,7 @@ data:
   #   - disabled
   #   - vxlan (default)
   #   - geneve
-  tunnel: vxlan
+  tunnel: "{{ kube_cilium_tunnel }}"
   # Enables L7 proxy for L7 policy enforcement and visibility
   enable-l7-proxy: "true"
   # Enable chaining with another CNI plugin
@@ -152,6 +152,7 @@ data:
   auto-direct-node-routes: "false"
   enable-bandwidth-manager: "false"
   enable-local-redirect-policy: "false"
+  ipv4-native-routing-cidr: "{{ kube_cilium_nativeroutingcidr }}"
   kube-proxy-replacement: "{{ kube_cilium_kubeproxyreplacement }}"
   kube-proxy-replacement-healthz-bind-address: ""
   enable-health-check-nodeport: "true"
@@ -161,14 +162,13 @@ data:
   enable-l2-neigh-discovery: "true"
   arping-refresh-period: "30s"
   k8s-require-ipv4-pod-cidr: "{{ kube_cilium_k8s_requireipv4podcidr | bool | lower }}"
+  enable-endpoint-routes: "{{ kube_cilium_endpointroutes_enabled | bool | lower }}"
   enable-endpoint-health-checking: "true"
   enable-health-checking: "true"
   enable-well-known-identities: "false"
   enable-remote-node-identity: "true"
   operator-api-serve-addr: "127.0.0.1:9234"
   ipam: "{{ kube_cilium_ipam_mode }}"
-  cluster-pool-ipv4-cidr: "{{ kube_cilium_ipam_operator_clusterpoolipv4podcidrlist }}"
-  cluster-pool-ipv4-mask-size: "{{ kube_cilium_ipam_operator_clusterpoolipv4masksize }}"
   disable-cnp-status-updates: "true"
   cgroup-root: "/run/cilium/cgroupv2"
   enable-k8s-terminating-endpoint: "true"
