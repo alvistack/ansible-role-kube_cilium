@@ -31,7 +31,7 @@ kube_cilium_cni_exclusive: false
 kube_cilium_hubble_enabled: false
 
 # Configure IP Address Management mode.
-kube_cilium_ipam_mode: "kubernetes"
+kube_cilium_ipam_mode: "cluster-pool"
 
 # Enable IPv4 support.
 kube_cilium_ipv4_enabled: true
