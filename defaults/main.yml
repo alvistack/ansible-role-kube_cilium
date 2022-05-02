@@ -41,7 +41,7 @@ kube_cilium_ipam_mode: "kubernetes"
 kube_cilium_ipv4_enabled: true
 
 # Describes a v4 CIDR in which pod IPs are routable
-kube_cilium_nativeroutingcidr: "10.233.64.0/18"
+kube_cilium_ipv4nativeroutingcidr: "{{ (ansible_default_ipv4.network + '/' + ansible_default_ipv4.netmask) | ansible.netcommon.ipaddr('net') }}"
 
 # Enable IPv6 support.
 kube_cilium_ipv6_enabled: false
