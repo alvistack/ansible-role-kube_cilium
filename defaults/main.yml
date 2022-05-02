@@ -25,7 +25,7 @@ kube_cilium_cni_chainingmode: "portmap"
 # node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
 # ensures no Pods can be scheduled using other CNI plugins during Cilium
 # agent downtime.
-kube_cilium_cni_exclusive: false
+kube_cilium_cni_exclusive: true
 
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
