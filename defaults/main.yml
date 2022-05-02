@@ -35,7 +35,7 @@ kube_cilium_endpointroutes_enabled: true
 kube_cilium_hubble_enabled: false
 
 # Configure IP Address Management mode.
-kube_cilium_ipam_mode: "cluster-pool"
+kube_cilium_ipam_mode: "kubernetes"
 
 # IPv4 CIDR mask size to delegate to individual nodes for IPAM.
 kube_cilium_ipam_operator_clusterpoolipv4masksize: "24"
@@ -64,4 +64,4 @@ kube_cilium_operator_replicas: 1
 
 # Configure the encapsulation configuration for communication between
 # nodes.
-kube_cilium_tunnel: "vxlan"
+kube_cilium_tunnel: "disabled"
