@@ -57,7 +57,7 @@ kube_cilium_ipv6_enabled: false
 kube_cilium_k8s_requireipv4podcidr: true
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
-kube_cilium_kubeproxyreplacement: "disabled"
+kube_cilium_kubeproxyreplacement: "probe"
 
 # Number of replicas to run for the cilium-operator deployment.
 kube_cilium_operator_replicas: 1
