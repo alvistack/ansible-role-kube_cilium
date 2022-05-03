@@ -133,7 +133,7 @@ data:
   #   - disabled
   #   - vxlan (default)
   #   - geneve
-  tunnel: vxlan
+  tunnel: "{{ kube_cilium_tunnel }}"
   # Enables L7 proxy for L7 policy enforcement and visibility
   enable-l7-proxy: "true"
   # Enable chaining with another CNI plugin
@@ -152,6 +152,7 @@ data:
   auto-direct-node-routes: "false"
   enable-bandwidth-manager: "false"
   enable-local-redirect-policy: "false"
+  ipv4-native-routing-cidr: "{{ kube_cilium_ipv4nativeroutingcidr }}"
   kube-proxy-replacement: "{{ kube_cilium_kubeproxyreplacement }}"
   kube-proxy-replacement-healthz-bind-address: ""
   enable-health-check-nodeport: "true"
@@ -161,12 +162,15 @@ data:
   enable-l2-neigh-discovery: "true"
   arping-refresh-period: "30s"
   k8s-require-ipv4-pod-cidr: "{{ kube_cilium_k8s_requireipv4podcidr | bool | lower }}"
+  enable-endpoint-routes: "{{ kube_cilium_endpointroutes_enabled | bool | lower }}"
   enable-endpoint-health-checking: "true"
   enable-health-checking: "true"
   enable-well-known-identities: "false"
   enable-remote-node-identity: "true"
   operator-api-serve-addr: "127.0.0.1:9234"
   ipam: "{{ kube_cilium_ipam_mode }}"
+  cluster-pool-ipv4-cidr: "{{ kube_cilium_ipam_operator_clusterpoolipv4podcidrlist }}"
+  cluster-pool-ipv4-mask-size: "{{ kube_cilium_ipam_operator_clusterpoolipv4masksize }}"
   disable-cnp-status-updates: "true"
   cgroup-root: "/run/cilium/cgroupv2"
   enable-k8s-terminating-endpoint: "true"
@@ -605,6 +609,20 @@ spec:
               mountPath: /hostbin
           securityContext:
             privileged: true
+        - name: wait-for-node-init
+          image: quay.io/cilium/cilium:v1.11.4
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              until test -s "/tmp/cilium-bootstrap.d/cilium-bootstrap-time"; do
+                echo "Waiting on node-init to run...";
+                sleep 1;
+              done
+          volumeMounts:
+            - name: cilium-bootstrap-file-dir
+              mountPath: "/tmp/cilium-bootstrap.d"
         - name: clean-cilium-state
           image: quay.io/cilium/cilium:v1.11.4
           imagePullPolicy: IfNotPresent
@@ -685,6 +703,10 @@ spec:
           hostPath:
             path: /run/xtables.lock
             type: FileOrCreate
+        - name: cilium-bootstrap-file-dir
+          hostPath:
+            path: "/tmp/cilium-bootstrap.d"
+            type: DirectoryOrCreate
             # To read the clustermesh configuration
         - name: clustermesh-secrets
           secret:
@@ -696,6 +718,75 @@ spec:
         - name: cilium-config-path
           configMap:
             name: cilium-config
+
+---
+# Source: cilium/templates/cilium-nodeinit/daemonset.yaml
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: cilium-node-init
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: cilium-node-init
+    app.kubernetes.io/part-of: kube-system
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cilium-node-init
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/name: cilium-node-init
+    spec:
+      tolerations:
+        - operator: Exists
+      hostPID: true
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      volumes:
+        # To access iptables concurrently with other processes (e.g. kube-proxy)
+        - hostPath:
+            path: /run/xtables.lock
+            type: FileOrCreate
+          name: xtables-lock
+      containers:
+        - name: node-init
+          image: quay.io/cilium/startup-script:62bfbe88c17778aad7bef9fa57ff9e2d4a9ba0d8
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          volumeMounts:
+            # To access iptables concurrently with other processes (e.g. kube-proxy)
+            - mountPath: /run/xtables.lock
+              name: xtables-lock
+          lifecycle:
+          env:
+            # STARTUP_SCRIPT is the script run on node bootstrap. Node
+            # bootstrapping can be customized in this script. This script is invoked
+            # using nsenter, so it runs in the host's network and mount namespace using
+            # the host's userland tools!
+            - name: STARTUP_SCRIPT
+              value: |
+                #!/bin/bash
+
+                set -o errexit
+                set -o pipefail
+                set -o nounset
+
+                echo "Link information:"
+                ip link
+
+                echo "Routing table:"
+                ip route
+
+                echo "Addressing:"
+                ip -4 a
+                ip -6 a
+                mkdir -p "/tmp/cilium-bootstrap.d"
+                date > "/tmp/cilium-bootstrap.d/cilium-bootstrap-time"
+                echo "Node initialization complete"
 
 ---
 # Source: cilium/templates/cilium-operator/deployment.yaml
