@@ -25,7 +25,7 @@ kube_cilium_bpf_preallocatemaps: false
 kube_cilium_cni_binpath: "/usr/libexec/cni"
 
 # Configure chaining on top of other CNI plugins.
-kube_cilium_cni_chainingmode: "portmap"
+kube_cilium_cni_chainingmode: "none"
 
 # Make Cilium take ownership over the /etc/cni/net.d directory on the
 # node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
