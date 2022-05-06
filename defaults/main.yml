@@ -35,7 +35,7 @@ kube_cilium_cni_exclusive: true
 
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
-kube_cilium_endpointroutes_enabled: true
+kube_cilium_endpointroutes_enabled: false
 
 # Enable ExternalIPs service support.
 kube_cilium_externalIPs_enabled: true
@@ -53,7 +53,7 @@ kube_cilium_hubble_enabled: false
 kube_cilium_ipam_mode: "cluster-pool"
 
 # IPv4 CIDR mask size to delegate to individual nodes for IPAM.
-kube_cilium_ipam_operator_clusterpoolipv4masksize: "18"
+kube_cilium_ipam_operator_clusterpoolipv4masksize: "24"
 
 # IPv4 CIDR list range to delegate to individual nodes for IPAM.
 kube_cilium_ipam_operator_clusterpoolipv4podcidrlist: "10.233.64.0/18"
@@ -69,7 +69,7 @@ kube_cilium_ipv6_enabled: false
 
 # Enables waiting for Kubernetes to provide the PodCIDR range via the
 # Kubernetes node resource.
-kube_cilium_k8s_requireipv4podcidr: true
+kube_cilium_k8s_requireipv4podcidr: false
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: "probe"
