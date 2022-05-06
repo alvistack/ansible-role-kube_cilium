@@ -591,7 +591,7 @@ spec:
             - name: CGROUP_ROOT
               value: /run/cilium/cgroupv2
             - name: BIN_PATH
-              value: /opt/cni/bin
+              value: "{{ kube_cilium_cni_binpath }}"
           command:
             - sh
             - -ec
@@ -689,7 +689,7 @@ spec:
         # To install cilium cni plugin in the host
         - name: cni-path
           hostPath:
-            path: /opt/cni/bin
+            path: "{{ kube_cilium_cni_binpath }}"
             type: DirectoryOrCreate
             # To install cilium cni configuration in the host
         - name: etc-cni-netd
