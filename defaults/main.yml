@@ -16,7 +16,7 @@
 
 # Enables pre-allocation of eBPF map values. This increases memory usage
 # but can reduce latency.
-kube_cilium_bpf_preallocatemaps: true
+kube_cilium_bpf_preallocatemaps: false
 
 # Configure chaining on top of other CNI plugins.
 kube_cilium_cni_chainingmode: "portmap"
