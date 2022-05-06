@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Enable native IP masquerade support in eBPF.
+kube_cilium_bpf_masquerade: false
+
 # Enables pre-allocation of eBPF map values. This increases memory usage
 # but can reduce latency.
 kube_cilium_bpf_preallocatemaps: false
@@ -30,6 +33,15 @@ kube_cilium_cni_exclusive: true
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
 kube_cilium_endpointroutes_enabled: true
+
+# Enable ExternalIPs service support.
+kube_cilium_externalIPs_enabled: true
+
+# Enable hostPort service support.
+kube_cilium_hostport_enabled: true
+
+# Enable host reachable services.
+kube_cilium_hostservices_enabled: true
 
 # Enable Hubble (true by default).
 kube_cilium_hubble_enabled: false
@@ -58,6 +70,12 @@ kube_cilium_k8s_requireipv4podcidr: true
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: "probe"
+
+# Enable the Cilium NodePort service implementation.
+kube_cilium_nodeport_enabled: true
+
+# Enable the node initialization DaemonSet.
+kube_cilium_nodeinit_enabled: true
 
 # Number of replicas to run for the cilium-operator deployment.
 kube_cilium_operator_replicas: 1
