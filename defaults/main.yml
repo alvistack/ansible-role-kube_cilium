@@ -50,7 +50,7 @@ kube_cilium_hostservices_enabled: true
 kube_cilium_hubble_enabled: false
 
 # Configure IP Address Management mode.
-kube_cilium_ipam_mode: "cluster-pool"
+kube_cilium_ipam_mode: "kubernetes"
 
 # IPv4 CIDR mask size to delegate to individual nodes for IPAM.
 kube_cilium_ipam_operator_clusterpoolipv4masksize: "24"
@@ -69,7 +69,7 @@ kube_cilium_ipv6_enabled: false
 
 # Enables waiting for Kubernetes to provide the PodCIDR range via the
 # Kubernetes node resource.
-kube_cilium_k8s_requireipv4podcidr: false
+kube_cilium_k8s_requireipv4podcidr: true
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: "probe"
