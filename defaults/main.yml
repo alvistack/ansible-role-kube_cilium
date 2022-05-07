@@ -15,11 +15,18 @@
 # limitations under the License.
 
 # Enable native IP masquerade support in eBPF.
-kube_cilium_bpf_masquerade: false
+kube_cilium_bpf_masquerade: ~
 
 # Enables pre-allocation of eBPF map values. This increases memory usage
 # but can reduce latency.
 kube_cilium_bpf_preallocatemaps: false
+
+# Unique ID of the cluster. Must be unique across all connected clusters
+# and in the range of 1 to 255. Only required for Cluster Mesh.
+kube_cilium_cluster_id: "0"
+
+# Name of the cluster. Only required for Cluster Mesh.
+kube_cilium_cluster_name: "{{ hostvars[groups['kube_master'][0]].ansible_machine_id | to_uuid }}"
 
 # Configure the path to the CNI binary directory on the host.
 kube_cilium_cni_binpath: "/usr/libexec/cni"
@@ -35,10 +42,10 @@ kube_cilium_cni_exclusive: true
 
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
-kube_cilium_endpointroutes_enabled: false
+kube_cilium_endpointroutes_enabled: ~
 
 # Enable ExternalIPs service support.
-kube_cilium_externalIPs_enabled: true
+kube_cilium_externalips_enabled: true
 
 # Enable hostPort service support.
 kube_cilium_hostport_enabled: true
@@ -50,7 +57,7 @@ kube_cilium_hostservices_enabled: true
 kube_cilium_hubble_enabled: false
 
 # Configure IP Address Management mode.
-kube_cilium_ipam_mode: "kubernetes"
+kube_cilium_ipam_mode: "cluster-pool"
 
 # IPv4 CIDR mask size to delegate to individual nodes for IPAM.
 kube_cilium_ipam_operator_clusterpoolipv4masksize: "24"
@@ -69,7 +76,7 @@ kube_cilium_ipv6_enabled: false
 
 # Enables waiting for Kubernetes to provide the PodCIDR range via the
 # Kubernetes node resource.
-kube_cilium_k8s_requireipv4podcidr: true
+kube_cilium_k8s_requireipv4podcidr: ~
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: "probe"
