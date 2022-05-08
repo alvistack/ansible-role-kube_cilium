@@ -14,12 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Enable native IP masquerade support in eBPF.
+kube_cilium_bpf_masquerade: ~
+
 # Enables pre-allocation of eBPF map values. This increases memory usage
 # but can reduce latency.
-kube_cilium_bpf_preallocatemaps: true
+kube_cilium_bpf_preallocatemaps: false
+
+# Unique ID of the cluster. Must be unique across all connected clusters
+# and in the range of 1 to 255. Only required for Cluster Mesh.
+kube_cilium_cluster_id: "0"
+
+# Name of the cluster. Only required for Cluster Mesh.
+kube_cilium_cluster_name: "{{ hostvars[groups['kube_master'][0]].ansible_machine_id | to_uuid }}"
+
+# Configure the path to the CNI binary directory on the host.
+kube_cilium_cni_binpath: "/usr/libexec/cni"
 
 # Configure chaining on top of other CNI plugins.
-kube_cilium_cni_chainingmode: "portmap"
+kube_cilium_cni_chainingmode: "none"
 
 # Make Cilium take ownership over the /etc/cni/net.d directory on the
 # node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
@@ -29,7 +42,16 @@ kube_cilium_cni_exclusive: true
 
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
-kube_cilium_endpointroutes_enabled: true
+kube_cilium_endpointroutes_enabled: ~
+
+# Enable ExternalIPs service support.
+kube_cilium_externalips_enabled: true
+
+# Enable hostPort service support.
+kube_cilium_hostport_enabled: true
+
+# Enable host reachable services.
+kube_cilium_hostservices_enabled: true
 
 # Enable Hubble (true by default).
 kube_cilium_hubble_enabled: false
@@ -54,10 +76,16 @@ kube_cilium_ipv6_enabled: false
 
 # Enables waiting for Kubernetes to provide the PodCIDR range via the
 # Kubernetes node resource.
-kube_cilium_k8s_requireipv4podcidr: true
+kube_cilium_k8s_requireipv4podcidr: ~
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: "probe"
+
+# Enable the Cilium NodePort service implementation.
+kube_cilium_nodeport_enabled: true
+
+# Enable the node initialization DaemonSet.
+kube_cilium_nodeinit_enabled: true
 
 # Number of replicas to run for the cilium-operator deployment.
 kube_cilium_operator_replicas: 1
