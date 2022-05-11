@@ -4,6 +4,8 @@
 
 ### Major Changes
 
+  - Remove Fedora 34 support
+
 ## 5.7.0 - 2022-04-30
 
   - Ininitial release for Ansible 4.10 or higher
