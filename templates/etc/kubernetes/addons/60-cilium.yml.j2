@@ -60,6 +60,7 @@ data:
   #   setting it to "kvstore".
   identity-allocation-mode: crd
   cilium-endpoint-gc-interval: "5m0s"
+  nodes-gc-interval: "5m0s"
   # Disable the usage of CiliumEndpoint CRD
   disable-endpoint-crd: "false"
   # If you want to run cilium in debug mode change this value to true
@@ -199,6 +200,10 @@ data:
   disable-cnp-status-updates: "true"
   cgroup-root: "/run/cilium/cgroupv2"
   enable-k8s-terminating-endpoint: "true"
+  annotate-k8s-node: "true"
+  remove-cilium-node-taints: "true"
+  set-cilium-is-up-condition: "true"
+  unmanaged-pod-watcher-interval: "15"
 
 ---
 # Source: cilium/templates/cilium-agent/clusterrole.yaml
@@ -232,34 +237,19 @@ rules:
     resources:
       - namespaces
       - services
-      - nodes
-      - endpoints
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - nodes
       - pods
+      - endpoints
+      - nodes
     verbs:
       - get
       - list
       - watch
-      - update
   - apiGroups:
       - ""
     resources:
-      - nodes
       - nodes/status
     verbs:
+      # To annotate the k8s node with Cilium's metadata
       - patch
   - apiGroups:
       - apiextensions.k8s.io
@@ -280,21 +270,15 @@ rules:
     resources:
       - ciliumnetworkpolicies
       - ciliumnetworkpolicies/status
-      - ciliumnetworkpolicies/finalizers
       - ciliumclusterwidenetworkpolicies
       - ciliumclusterwidenetworkpolicies/status
-      - ciliumclusterwidenetworkpolicies/finalizers
       - ciliumendpoints
       - ciliumendpoints/status
-      - ciliumendpoints/finalizers
       - ciliumnodes
       - ciliumnodes/status
-      - ciliumnodes/finalizers
       - ciliumidentities
-      - ciliumidentities/finalizers
       - ciliumlocalredirectpolicies
       - ciliumlocalredirectpolicies/status
-      - ciliumlocalredirectpolicies/finalizers
       - ciliumegressnatpolicies
       - ciliumendpointslices
     verbs:
@@ -314,14 +298,30 @@ rules:
   - apiGroups:
       - ""
     resources:
-      # to automatically delete [core|kube]dns pods so that are starting to being
-      # managed by Cilium
       - pods
     verbs:
       - get
       - list
       - watch
+      # to automatically delete [core|kube]dns pods so that are starting to being
+      # managed by Cilium
       - delete
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      # To remove node taints
+      - nodes
+      # To set NetworkUnavailable false on startup
+      - nodes/status
+    verbs:
+      - patch
   - apiGroups:
       - discovery.k8s.io
     resources:
@@ -500,7 +500,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.11.4
+          image: quay.io/cilium/cilium:v1.11.5
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -609,7 +609,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.11.4
+          image: quay.io/cilium/cilium:v1.11.5
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -637,7 +637,7 @@ spec:
             privileged: true
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.11.4
+          image: quay.io/cilium/cilium:v1.11.5
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -652,7 +652,7 @@ spec:
               mountPath: "/tmp/cilium-bootstrap.d"
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.11.4
+          image: quay.io/cilium/cilium:v1.11.5
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -868,7 +868,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.11.4
+          image: quay.io/cilium/operator-generic:v1.11.5
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
