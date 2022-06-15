@@ -204,6 +204,7 @@ data:
   remove-cilium-node-taints: "true"
   set-cilium-is-up-condition: "true"
   unmanaged-pod-watcher-interval: "15"
+  agent-not-ready-taint-key: "node.cilium.io/agent-not-ready"
 
 ---
 # Source: cilium/templates/cilium-agent/clusterrole.yaml
@@ -500,7 +501,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.11.5
+          image: quay.io/cilium/cilium:v1.11.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -510,7 +511,7 @@ spec:
             httpGet:
               host: "127.0.0.1"
               path: /healthz
-              port: 9876
+              port: 9879
               scheme: HTTP
               httpHeaders:
                 - name: "brief"
@@ -522,7 +523,7 @@ spec:
             httpGet:
               host: "127.0.0.1"
               path: /healthz
-              port: 9876
+              port: 9879
               scheme: HTTP
               httpHeaders:
                 - name: "brief"
@@ -535,7 +536,7 @@ spec:
             httpGet:
               host: "127.0.0.1"
               path: /healthz
-              port: 9876
+              port: 9879
               scheme: HTTP
               httpHeaders:
                 - name: "brief"
@@ -609,7 +610,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.11.5
+          image: quay.io/cilium/cilium:v1.11.6
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -637,7 +638,7 @@ spec:
             privileged: true
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.11.5
+          image: quay.io/cilium/cilium:v1.11.6
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -652,7 +653,7 @@ spec:
               mountPath: "/tmp/cilium-bootstrap.d"
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.11.5
+          image: quay.io/cilium/cilium:v1.11.6
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -868,7 +869,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.11.5
+          image: quay.io/cilium/operator-generic:v1.11.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
