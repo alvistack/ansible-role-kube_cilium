@@ -577,10 +577,10 @@ spec:
                   - "/cni-install.sh"
                   - "--enable-debug=false"
                   - "--cni-exclusive={{ kube_cilium_cni_exclusive | bool | lower}}"
-            preStop:
-              exec:
-                command:
-                  - /cni-uninstall.sh
+#            preStop:
+#              exec:
+#                command:
+#                  - /cni-uninstall.sh
           securityContext:
             privileged: true
           volumeMounts:
