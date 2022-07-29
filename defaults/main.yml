@@ -40,6 +40,12 @@ kube_cilium_cni_chainingmode: "none"
 # agent downtime.
 kube_cilium_cni_exclusive: true
 
+# Enables masquerading of IPv4 traffic leaving the node from endpoints.
+kube_cilium_enableipv4masquerade: true
+
+# Enables masquerading of IPv6 traffic leaving the node from endpoints.
+kube_cilium_enableipv6masquerade: false
+
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
 kube_cilium_endpointroutes_enabled: ~
@@ -89,6 +95,9 @@ kube_cilium_nodeinit_enabled: true
 
 # Number of replicas to run for the cilium-operator deployment.
 kube_cilium_operator_replicas: 1
+
+# Security context to be added to agent pods.
+kube_cilium_securitycontext_privileged: true
 
 # Configure the encapsulation configuration for communication between
 # nodes.
