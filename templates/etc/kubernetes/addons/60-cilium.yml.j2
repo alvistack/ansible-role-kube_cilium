@@ -948,7 +948,7 @@ spec:
                 - SYS_ADMIN
                 - SYS_CHROOT
                 - SYS_PTRACE
-            privileged: false
+            privileged: true
             seLinuxOptions:
               level: s0
               type: spc_t
@@ -1033,6 +1033,8 @@ spec:
             - name: cilium-config-path
               mountPath: /tmp/cilium/config-map
               readOnly: true
+          securityContext:
+            privileged: true
       hostNetwork: true
       restartPolicy: Always
       priorityClassName: system-cluster-critical
