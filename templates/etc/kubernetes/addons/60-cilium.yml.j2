@@ -145,8 +145,8 @@ data:
   #  - flannel
   #  - portmap (Enables HostPort support for Cilium)
   cni-chaining-mode: "{{ kube_cilium_cni_chainingmode }}"
-  enable-ipv4-masquerade: "{{ kube_cilium_enableipv4masquerade }}"
-  enable-ipv6-masquerade: "{{ kube_cilium_enableipv6masquerade }}"
+  enable-ipv4-masquerade: "{{ kube_cilium_enableipv4masquerade | bool | lower }}"
+  enable-ipv6-masquerade: "{{ kube_cilium_enableipv6masquerade | bool | lower }}"
 {% if kube_cilium_bpf_masquerade %}
   enable-bpf-masquerade: "{{ kube_cilium_bpf_masquerade | bool | lower }}"
 {% endif %}
@@ -669,7 +669,7 @@ spec:
                 command:
                   - /cni-uninstall.sh
           securityContext:
-            privileged: true
+            privileged: {{ kube_cilium_securitycontext_privileged | bool | lower }}
           volumeMounts:
             - name: bpf-maps
               mountPath: /sys/fs/bpf
@@ -721,7 +721,7 @@ spec:
             - name: cni-path
               mountPath: /hostbin
           securityContext:
-            privileged: true
+            privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
           image: quay.io/cilium/cilium:v1.12.0
           imagePullPolicy: IfNotPresent
@@ -746,7 +746,7 @@ spec:
             - name: cni-path
               mountPath: /hostbin
           securityContext:
-            privileged: true
+            privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
           image: quay.io/cilium/cilium:v1.12.0
@@ -782,7 +782,7 @@ spec:
                   key: clean-cilium-bpf-state
                   optional: true
           securityContext:
-            privileged: true
+            privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
           volumeMounts:
             - name: bpf-maps
               mountPath: /sys/fs/bpf
@@ -948,7 +948,7 @@ spec:
                 - SYS_ADMIN
                 - SYS_CHROOT
                 - SYS_PTRACE
-            privileged: true
+            privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
             seLinuxOptions:
               level: s0
               type: spc_t
@@ -1034,7 +1034,7 @@ spec:
               mountPath: /tmp/cilium/config-map
               readOnly: true
           securityContext:
-            privileged: true
+            privileged: {{ kube_cilium_operator_securitycontext_privileged | bool | lower }}
       hostNetwork: true
       restartPolicy: Always
       priorityClassName: system-cluster-critical
