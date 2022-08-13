@@ -143,6 +143,7 @@ data:
   #  - none
   #  - aws-cni
   #  - flannel
+  #  - generic-veth
   #  - portmap (Enables HostPort support for Cilium)
   cni-chaining-mode: "{{ kube_cilium_cni_chainingmode }}"
   enable-ipv4-masquerade: "{{ kube_cilium_enableipv4masquerade | bool | lower }}"
