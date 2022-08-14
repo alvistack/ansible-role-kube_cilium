@@ -85,7 +85,7 @@ kube_cilium_ipv6_enabled: false
 kube_cilium_k8s_requireipv4podcidr: ~
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
-kube_cilium_kubeproxyreplacement: "partial"
+kube_cilium_kubeproxyreplacement: "probe"
 
 # Enable the Cilium NodePort service implementation.
 kube_cilium_nodeport_enabled: true
