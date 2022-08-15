@@ -23,14 +23,14 @@ kube_cilium_bpf_masquerade: ~
 # briefly. Loadbalancing decisions will be reset, so any ongoing
 # connections via a service may be loadbalanced to a different backend
 # after restart.
-kube_cilium_clean_cilium_bpf_state: true
+kube_cilium_clean_cilium_bpf_state: false
 
 # If a serious issue occurs during Cilium startup, this invasive option
 # may be set to true to remove all persistent state. Endpoints will not be
 # restored using knowledge from a prior Cilium run, so they may receive
 # new IP addresses upon restart. This also triggers
 # clean-cilium-bpf-state.
-kube_cilium_clean_cilium_state: true
+kube_cilium_clean_cilium_state: false
 
 # Enables pre-allocation of eBPF map values. This increases memory usage
 # but can reduce latency.
