@@ -75,6 +75,20 @@ data:
   # Enable IPv6 addressing. If enabled, all endpoints are allocated an IPv6
   # address.
   enable-ipv6: "{{ kube_cilium_ipv6_enabled | bool | lower }}"
+  # If a serious issue occurs during Cilium startup, this
+  # invasive option may be set to true to remove all persistent
+  # state. Endpoints will not be restored using knowledge from a
+  # prior Cilium run, so they may receive new IP addresses upon
+  # restart. This also triggers clean-cilium-bpf-state.
+  clean-cilium-state: "{{ kube_cilium_clean_cilium_state | bool | lower }}"
+  # If you want to clean cilium BPF state, set this to true;
+  # Removes all BPF maps from the filesystem. Upon restart,
+  # endpoints are restored with the same IP addresses, however
+  # any ongoing connections may be disrupted briefly.
+  # Loadbalancing decisions will be reset, so any ongoing
+  # connections via a service may be loadbalanced to a different
+  # backend after restart.
+  clean-cilium-bpf-state: "{{ kube_cilium_clean_cilium_bpf_state | bool | lower }}"
   # Users who wish to specify their own custom CNI configuration file must set
   # custom-cni-conf to "true", otherwise Cilium may overwrite the configuration.
   custom-cni-conf: "false"
@@ -588,7 +602,7 @@ spec:
     spec:
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.12.0
+          image: quay.io/cilium/cilium:v1.12.1
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -697,7 +711,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.12.0
+          image: quay.io/cilium/cilium:v1.12.1
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -724,7 +738,7 @@ spec:
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
-          image: quay.io/cilium/cilium:v1.12.0
+          image: quay.io/cilium/cilium:v1.12.1
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
@@ -750,7 +764,7 @@ spec:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.12.0
+          image: quay.io/cilium/cilium:v1.12.1
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -765,7 +779,7 @@ spec:
               mountPath: "/tmp/cilium-bootstrap.d"
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.12.0
+          image: quay.io/cilium/cilium:v1.12.1
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -897,20 +911,10 @@ spec:
       labels:
         app: cilium-node-init
     spec:
-      volumes:
-        # To access iptables concurrently with other processes (e.g. kube-proxy)
-        - hostPath:
-            path: /run/xtables.lock
-            type: FileOrCreate
-          name: xtables-lock
       containers:
         - name: node-init
           image: quay.io/cilium/startup-script:62bfbe88c17778aad7bef9fa57ff9e2d4a9ba0d8
           imagePullPolicy: IfNotPresent
-          volumeMounts:
-            # To access iptables concurrently with other processes (e.g. kube-proxy)
-            - mountPath: /run/xtables.lock
-              name: xtables-lock
           lifecycle:
           env:
             # STARTUP_SCRIPT is the script run on node bootstrap. Node
@@ -997,7 +1001,7 @@ spec:
     spec:
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.12.0
+          image: quay.io/cilium/operator-generic:v1.12.1
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
