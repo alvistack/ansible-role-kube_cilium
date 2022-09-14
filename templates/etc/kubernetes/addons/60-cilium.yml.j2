@@ -602,7 +602,7 @@ spec:
     spec:
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.12.1
+          image: quay.io/cilium/cilium:v1.12.2
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -685,6 +685,7 @@ spec:
                   - /cni-uninstall.sh
           securityContext:
             privileged: {{ kube_cilium_securitycontext_privileged | bool | lower }}
+          terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: bpf-maps
               mountPath: /sys/fs/bpf
@@ -711,7 +712,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.12.1
+          image: quay.io/cilium/cilium:v1.12.2
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -735,10 +736,11 @@ spec:
               mountPath: /hostproc
             - name: cni-path
               mountPath: /hostbin
+          terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
-          image: quay.io/cilium/cilium:v1.12.1
+          image: quay.io/cilium/cilium:v1.12.2
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
@@ -760,11 +762,12 @@ spec:
               mountPath: /hostproc
             - name: cni-path
               mountPath: /hostbin
+          terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.12.1
+          image: quay.io/cilium/cilium:v1.12.2
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -774,12 +777,13 @@ spec:
                 echo "Waiting on node-init to run...";
                 sleep 1;
               done
+          terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: cilium-bootstrap-file-dir
               mountPath: "/tmp/cilium-bootstrap.d"
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.12.1
+          image: quay.io/cilium/cilium:v1.12.2
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -798,6 +802,7 @@ spec:
                   optional: true
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
+          terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: bpf-maps
               mountPath: /sys/fs/bpf
@@ -957,6 +962,7 @@ spec:
             seLinuxOptions:
               level: s0
               type: spc_t
+          terminationMessagePolicy: FallbackToLogsOnError
       nodeSelector:
         kubernetes.io/os: linux
       tolerations:
@@ -1001,7 +1007,7 @@ spec:
     spec:
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.12.1
+          image: quay.io/cilium/operator-generic:v1.12.2
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
@@ -1040,6 +1046,7 @@ spec:
               readOnly: true
           securityContext:
             privileged: {{ kube_cilium_operator_securitycontext_privileged | bool | lower }}
+          terminationMessagePolicy: FallbackToLogsOnError
       hostNetwork: true
       restartPolicy: Always
       priorityClassName: system-cluster-critical
