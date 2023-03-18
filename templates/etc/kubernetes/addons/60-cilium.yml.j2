@@ -669,7 +669,7 @@ spec:
     spec:
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.13.0
+          image: quay.io/cilium/cilium:v1.13.1
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -759,8 +759,6 @@ spec:
               mountPropagation: Bidirectional
             - name: cilium-run
               mountPath: /var/run/cilium
-            - name: cni-path
-              mountPath: /host/opt/cni/bin
             - name: etc-cni-netd
               mountPath: /host/etc/cni/net.d
             - name: clustermesh-secrets
@@ -776,7 +774,7 @@ spec:
               mountPath: /tmp
       initContainers:
         - name: config
-          image: quay.io/cilium/cilium:v1.13.0
+          image: quay.io/cilium/cilium:v1.13.1
           imagePullPolicy: IfNotPresent
           command:
             - cilium
@@ -799,7 +797,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.13.0
+          image: quay.io/cilium/cilium:v1.13.1
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -827,7 +825,7 @@ spec:
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
-          image: quay.io/cilium/cilium:v1.13.0
+          image: quay.io/cilium/cilium:v1.13.1
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
@@ -854,7 +852,7 @@ spec:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.13.0
+          image: quay.io/cilium/cilium:v1.13.1
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -870,7 +868,7 @@ spec:
               mountPath: "/tmp/cilium-bootstrap.d"
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.13.0
+          image: quay.io/cilium/cilium:v1.13.1
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -903,10 +901,29 @@ spec:
             requests:
               cpu: 100m
               memory: 100Mi # wait-for-kube-proxy
+        # Install the CNI binaries in an InitContainer so we don't have a writable host mount in the agent
+        - name: install-cni-binaries
+          image: quay.io/cilium/cilium:v1.13.1
+          imagePullPolicy: IfNotPresent
+          command:
+            - "/install-plugin.sh"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 10Mi
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - name: cni-path
+              mountPath: /host/opt/cni/bin
       restartPolicy: Always
       priorityClassName: system-node-critical
       serviceAccount: "cilium"
       serviceAccountName: "cilium"
+      automountServiceAccountToken: true
       terminationGracePeriodSeconds: 1
       hostNetwork: true
       affinity:
@@ -1105,7 +1122,7 @@ spec:
     spec:
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.13.0
+          image: quay.io/cilium/operator-generic:v1.13.1
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
@@ -1150,6 +1167,7 @@ spec:
       priorityClassName: system-cluster-critical
       serviceAccount: "cilium-operator"
       serviceAccountName: "cilium-operator"
+      automountServiceAccountToken: true
       # In HA mode, cilium-operator pods must not be scheduled on the same
       # node as they will clash with each other.
       affinity:
