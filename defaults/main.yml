@@ -126,4 +126,7 @@ kube_cilium_securitycontext_privileged: true
 
 # Configure the encapsulation configuration for communication between
 # nodes.
-kube_cilium_tunnel: "vxlan"
+kube_cilium_routing_mode: "tunnel"
+
+# Tunneling protocol to use in tunneling mode and for ad-hoc tunnels.
+kube_cilium_tunnel_protocol: "vxlan"
