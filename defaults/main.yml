@@ -47,7 +47,7 @@ kube_cilium_cluster_name: "{{ hostvars[groups['kube_master'][0]].ansible_machine
 kube_cilium_cni_binpath: "/usr/libexec/cni"
 
 # Configure chaining on top of other CNI plugins.
-kube_cilium_cni_chainingmode: "none"
+kube_cilium_cni_chainingmode: "portmap"
 
 # Make Cilium take ownership over the /etc/cni/net.d directory on the
 # node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
