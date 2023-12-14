@@ -178,8 +178,8 @@ data:
 {% if kube_cilium_routing_mode == "disabled" %}
   ipv4-native-routing-cidr: "{{ kube_cilium_ipv4nativeroutingcidr }}"
 {% endif %}
-  kube-proxy-replacement: "{{ kube_cilium_kubeproxyreplacement }}"
-{% if kube_cilium_kubeproxyreplacement != "disabled" %}
+  kube-proxy-replacement: "{{ kube_cilium_kubeproxyreplacement | bool | lower }}"
+{% if kube_cilium_kubeproxyreplacement != false %}
   kube-proxy-replacement-healthz-bind-address: ""
 {% endif %}
 {% if kube_cilium_hostservices_enabled %}
