@@ -115,6 +115,11 @@ data:
   # Specifies the ratio (0.0-1.0] of total system memory to use for dynamic
   # sizing of the TCP CT, non-TCP CT, NAT and policy BPF maps.
   bpf-map-dynamic-size-ratio: "0.0025"
+{% if kube_cilium_cni_chainingmode != "none" %}
+  # In cni chaining mode, the other chained plugin is responsible for underlying connectivity,
+  # so cilium eBPF host routing shoud not work, and let it fall back to the legacy routing mode
+  enable-host-legacy-routing: "true"
+{% endif %}
   # bpf-policy-map-max specifies the maximum number of entries in endpoint
   # policy map (per endpoint)
   bpf-policy-map-max: "16384"
@@ -178,8 +183,8 @@ data:
 {% if kube_cilium_routing_mode == "disabled" %}
   ipv4-native-routing-cidr: "{{ kube_cilium_ipv4nativeroutingcidr }}"
 {% endif %}
-  kube-proxy-replacement: "{{ kube_cilium_kubeproxyreplacement }}"
-{% if kube_cilium_kubeproxyreplacement != "disabled" %}
+  kube-proxy-replacement: "{{ kube_cilium_kubeproxyreplacement | bool | lower }}"
+{% if kube_cilium_kubeproxyreplacement != false %}
   kube-proxy-replacement-healthz-bind-address: ""
 {% endif %}
 {% if kube_cilium_hostservices_enabled %}
@@ -704,7 +709,7 @@ spec:
     spec:
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.14.4
+          image: quay.io/cilium/cilium:v1.14.5
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -815,7 +820,7 @@ spec:
               mountPath: /tmp
       initContainers:
         - name: config
-          image: quay.io/cilium/cilium:v1.14.4
+          image: quay.io/cilium/cilium:v1.14.5
           imagePullPolicy: IfNotPresent
           command:
             - cilium
@@ -838,7 +843,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.14.4
+          image: quay.io/cilium/cilium:v1.14.5
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -866,7 +871,7 @@ spec:
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
-          image: quay.io/cilium/cilium:v1.14.4
+          image: quay.io/cilium/cilium:v1.14.5
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
@@ -893,7 +898,7 @@ spec:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.14.4
+          image: quay.io/cilium/cilium:v1.14.5
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -909,7 +914,7 @@ spec:
               mountPath: "/tmp/cilium-bootstrap.d"
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.14.4
+          image: quay.io/cilium/cilium:v1.14.5
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -937,14 +942,10 @@ spec:
               mountPath: /run/cilium/cgroupv2
               mountPropagation: HostToContainer
             - name: cilium-run
-              mountPath: /var/run/cilium
-          resources:
-            requests:
-              cpu: 100m
-              memory: 100Mi # wait-for-kube-proxy
+              mountPath: /var/run/cilium # wait-for-kube-proxy
         # Install the CNI binaries in an InitContainer so we don't have a writable host mount in the agent
         - name: install-cni-binaries
-          image: quay.io/cilium/cilium:v1.14.4
+          image: quay.io/cilium/cilium:v1.14.5
           imagePullPolicy: IfNotPresent
           command:
             - "/install-plugin.sh"
@@ -1186,7 +1187,7 @@ spec:
     spec:
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.14.4
+          image: quay.io/cilium/operator-generic:v1.14.5
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
