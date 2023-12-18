@@ -220,7 +220,7 @@ data:
   enable-k8s-networkpolicy: "true"
   # Tell the agent to generate and write a CNI configuration file
   write-cni-conf-when-ready: /host/etc/cni/net.d/05-cilium.conflist
-  cni-exclusive: "true"
+  cni-exclusive: "{{ kube_cilium_cni_exclusive | bool | lower }}"
   cni-log-file: "/var/run/cilium/cilium-cni.log"
   enable-endpoint-health-checking: "true"
   enable-health-checking: "true"
