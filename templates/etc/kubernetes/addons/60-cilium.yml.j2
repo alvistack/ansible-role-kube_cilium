@@ -849,7 +849,7 @@ spec:
             - name: CGROUP_ROOT
               value: /run/cilium/cgroupv2
             - name: BIN_PATH
-              value: "{{ kube_cilium_cni_binpath }}"
+              value: "{{ kube_cilium_cni_plugin_dirs }}"
           command:
             - sh
             - -ec
@@ -875,7 +875,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
-              value: "{{ kube_cilium_cni_binpath }}"
+              value: "{{ kube_cilium_cni_plugin_dirs }}"
           command:
             - sh
             - -ec
@@ -1007,12 +1007,12 @@ spec:
         # To install cilium cni plugin in the host
         - name: cni-path
           hostPath:
-            path: "{{ kube_cilium_cni_binpath }}"
+            path: "{{ kube_cilium_cni_plugin_dirs }}"
             type: DirectoryOrCreate
             # To install cilium cni configuration in the host
         - name: etc-cni-netd
           hostPath:
-            path: /etc/cni/net.d
+            path: "{{ kube_cilium_network_config_dir }}"
             type: DirectoryOrCreate
             # To be able to load kernel modules
         - name: lib-modules

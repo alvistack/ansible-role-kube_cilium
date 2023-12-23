@@ -14,6 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Path to directory where CNI plugin binaries are located.
+kube_cilium_cni_plugin_dirs: "/opt/cni/bin"
+
+# Path to the directory where network configuration files are located.
+kube_cilium_network_config_dir: "/etc/cni/net.d"
+
 # Enable native IP masquerade support in eBPF.
 kube_cilium_bpf_masquerade: ~
 
@@ -42,9 +48,6 @@ kube_cilium_cluster_id: "0"
 
 # Name of the cluster. Only required for Cluster Mesh.
 kube_cilium_cluster_name: "{{ hostvars[groups['kube_master'][0]].ansible_machine_id | to_uuid }}"
-
-# Configure the path to the CNI binary directory on the host.
-kube_cilium_cni_binpath: "/opt/cni/bin"
 
 # Configure chaining on top of other CNI plugins.
 kube_cilium_cni_chainingmode: "portmap"
