@@ -124,6 +124,9 @@ kube_cilium_operator_replicas: 1
 # Security context to be added to cilium-operator pods
 kube_cilium_operator_securitycontext_privileged: true
 
+# Enable sessionAffinity support.
+kube_cilium_sessionaffinity: false
+
 # Security context to be added to agent pods.
 kube_cilium_securitycontext_privileged: true
 

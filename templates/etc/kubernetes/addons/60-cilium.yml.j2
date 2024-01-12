@@ -200,13 +200,12 @@ data:
   enable-node-port: "{{ kube_cilium_nodeport_enabled | bool | lower }}"
 {% endif %}
   bpf-lb-sock: "false"
-  enable-host-port: "true"
-  enable-external-ips: "true"
-  enable-node-port: "true"
   enable-health-check-nodeport: "true"
   node-port-bind-protection: "true"
   enable-auto-protect-node-port-range: "true"
-  enable-session-affinity: "true"
+{% if kube_cilium_sessionaffinity %}
+  enable-session-affinity: "{{ kube_cilium_sessionaffinity | bool | lower }}"
+{% endif %}
   enable-svc-source-range-check: "true"
   enable-l2-neigh-discovery: "true"
   arping-refresh-period: "30s"
