@@ -61,6 +61,10 @@ kube_cilium_cni_exclusive: true
 # Enables masquerading of IPv4 traffic leaving the node from endpoints.
 kube_cilium_enableipv4masquerade: true
 
+# Enable IPv4 BIG TCP option which increases device's maximum GRO/GSO
+# limits for IPv4.
+kube_cilium_enableipv4bigtcp: false
+
 # Enables IPv6 BIG TCP support which increases maximum GSO/GRO limits for
 # nodes and pods.
 kube_cilium_enableipv6bigtcp: false
