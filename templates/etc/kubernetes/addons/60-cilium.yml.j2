@@ -237,6 +237,7 @@ data:
   enable-health-checking: "true"
   enable-well-known-identities: "false"
   enable-remote-node-identity: "true"
+  enable-node-selector-labels: "false"
   synchronize-k8s-nodes: "true"
   operator-api-serve-addr: 127.0.0.1:9234
   ipam: {{ kube_cilium_ipam_mode }}
@@ -591,6 +592,7 @@ rules:
     resources:
       - ciliumloadbalancerippools
       - ciliumpodippools
+      - ciliumbgppeeringpolicies
       - ciliumbgpclusterconfigs
       - ciliumbgpnodeconfigoverrides
     verbs:
@@ -737,7 +739,7 @@ spec:
     spec:
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.15.1
+          image: quay.io/cilium/cilium:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -799,6 +801,7 @@ spec:
               valueFrom:
                 resourceFieldRef:
                   resource: limits.memory
+                  divisor: "1"
           lifecycle:
             postStart:
               exec:
@@ -853,7 +856,7 @@ spec:
               mountPath: /tmp
       initContainers:
         - name: config
-          image: quay.io/cilium/cilium:v1.15.1
+          image: quay.io/cilium/cilium:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           command:
             - cilium-dbg
@@ -876,7 +879,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.15.1
+          image: quay.io/cilium/cilium:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -904,7 +907,7 @@ spec:
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
-          image: quay.io/cilium/cilium:v1.15.1
+          image: quay.io/cilium/cilium:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
@@ -931,7 +934,7 @@ spec:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.15.1
+          image: quay.io/cilium/cilium:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -947,7 +950,7 @@ spec:
               mountPath: /tmp/cilium-bootstrap.d
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.15.1
+          image: quay.io/cilium/cilium:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -984,7 +987,7 @@ spec:
               mountPath: /var/run/cilium # wait-for-kube-proxy
         # Install the CNI binaries in an InitContainer so we don't have a writable host mount in the agent
         - name: install-cni-binaries
-          image: quay.io/cilium/cilium:v1.15.1
+          image: quay.io/cilium/cilium:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           command:
             - /install-plugin.sh
@@ -1228,7 +1231,7 @@ spec:
     spec:
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.15.1
+          image: quay.io/cilium/operator-generic:v1.16.0-pre.0
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
