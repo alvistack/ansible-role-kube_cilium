@@ -15,14 +15,13 @@
 # limitations under the License.
 
 # Path to directory where CNI plugin binaries are located.
-kube_cilium_cni_plugin_dirs: "/opt/cni/bin"
+kube_cilium_cni_plugin_dirs: /opt/cni/bin
 
 # Path to the directory where network configuration files are located.
-kube_cilium_network_config_dir: "/etc/cni/net.d"
+kube_cilium_network_config_dir: /etc/cni/net.d
 
 # Enable native IP masquerade support in eBPF.
-kube_cilium_bpf_masquerade: ~
-
+kube_cilium_bpf_masquerade:
 # If you want to clean cilium BPF state, set this to true; Removes all BPF
 # maps from the filesystem. Upon restart, endpoints are restored with the
 # same IP addresses, however any ongoing connections may be disrupted
@@ -50,7 +49,7 @@ kube_cilium_cluster_id: "0"
 kube_cilium_cluster_name: "{{ hostvars[groups['kube_master'][0]].ansible_machine_id | to_uuid }}"
 
 # Configure chaining on top of other CNI plugins.
-kube_cilium_cni_chainingmode: "portmap"
+kube_cilium_cni_chainingmode: portmap
 
 # Make Cilium take ownership over the /etc/cni/net.d directory on the
 # node, renaming all non-Cilium CNI configurations to *.cilium_bak. This
@@ -74,8 +73,7 @@ kube_cilium_enableipv6masquerade: false
 
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
-kube_cilium_endpointroutes_enabled: ~
-
+kube_cilium_endpointroutes_enabled:
 # Enable ExternalIPs service support.
 kube_cilium_externalips_enabled: true
 
@@ -89,13 +87,13 @@ kube_cilium_hostservices_enabled: true
 kube_cilium_hubble_enabled: false
 
 # Configure IP Address Management mode.
-kube_cilium_ipam_mode: "cluster-pool"
+kube_cilium_ipam_mode: cluster-pool
 
 # IPv4 CIDR mask size to delegate to individual nodes for IPAM.
 kube_cilium_ipam_operator_clusterpoolipv4masksize: "24"
 
 # IPv4 CIDR list range to delegate to individual nodes for IPAM.
-kube_cilium_ipam_operator_clusterpoolipv4podcidrlist: "10.233.64.0/18"
+kube_cilium_ipam_operator_clusterpoolipv4podcidrlist: 10.233.64.0/18
 
 # Enable IPv4 support.
 kube_cilium_ipv4_enabled: true
@@ -108,8 +106,7 @@ kube_cilium_ipv6_enabled: false
 
 # Enables waiting for Kubernetes to provide the PodCIDR range via the
 # Kubernetes node resource.
-kube_cilium_k8s_requireipv4podcidr: ~
-
+kube_cilium_k8s_requireipv4podcidr:
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: false
 
@@ -136,7 +133,7 @@ kube_cilium_securitycontext_privileged: true
 
 # Configure the encapsulation configuration for communication between
 # nodes.
-kube_cilium_routing_mode: "tunnel"
+kube_cilium_routing_mode: tunnel
 
 # Tunneling protocol to use in tunneling mode and for ad-hoc tunnels.
-kube_cilium_tunnel_protocol: "vxlan"
+kube_cilium_tunnel_protocol: vxlan
