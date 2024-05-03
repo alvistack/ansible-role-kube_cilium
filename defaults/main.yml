@@ -106,7 +106,12 @@ kube_cilium_ipv6_enabled: false
 
 # Enables waiting for Kubernetes to provide the PodCIDR range via the
 # Kubernetes node resource.
-kube_cilium_k8s_requireipv4podcidr:
+kube_cilium_k8s_requireipv4podcidr: false
+
+# Enables waiting for Kubernetes to provide the PodCIDR range via the
+# Kubernetes node resource.
+kube_cilium_k8s_requireipv6podcidr: false
+
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: false
 
