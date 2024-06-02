@@ -259,8 +259,10 @@ data:
   vtep-cidr: ""
   vtep-mask: ""
   vtep-mac: ""
+{% if kube_cilium_k8s_service_proxy_name %}
   # Configure service proxy name for Cilium.
   k8s-service-proxy-name: {{ kube_cilium_k8s_service_proxy_name }}
+{% endif %}
   enable-bgp-control-plane: "false"
   bpf-root: /sys/fs/bpf
   cgroup-root: /run/cilium/cgroupv2
