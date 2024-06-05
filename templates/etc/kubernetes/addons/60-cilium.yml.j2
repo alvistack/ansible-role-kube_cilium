@@ -63,6 +63,7 @@ data:
   identity-gc-interval: 15m0s
   cilium-endpoint-gc-interval: 5m0s
   nodes-gc-interval: 5m0s
+  skip-cnp-status-startup-clean: "false"
   # If you want to run cilium in debug mode change this value to true
   debug: "false"
   debug-verbose: ""
@@ -133,9 +134,6 @@ data:
   # backend and affinity maps.
   bpf-lb-map-max: "65536"
   bpf-lb-external-clusterip: "false"
-  bpf-events-drop-enabled: "true"
-  bpf-events-policy-verdict-enabled: "true"
-  bpf-events-trace-enabled: "true"
   # Pre-allocation of map entries allows per-packet latency to be reduced, at
   # the expense of up-front memory allocation for the entries in the maps. The
   # default value below will minimize memory usage in the default installation;
@@ -187,7 +185,6 @@ data:
 {% if kube_cilium_bpf_masquerade %}
   enable-bpf-masquerade: "{{ kube_cilium_bpf_masquerade | bool | lower }}"
 {% endif %}
-  enable-tcx: "true"
   enable-masquerade-to-route-source: "false"
   enable-xt-socket-fallback: "true"
   install-no-conntrack-iptables-rules: "false"
@@ -212,7 +209,6 @@ data:
 {% endif %}
 {% if kube_cilium_nodeport_enabled %}
   enable-node-port: "{{ kube_cilium_nodeport_enabled | bool | lower }}"
-  nodeport-addresses: ""
 {% endif %}
   enable-health-check-nodeport: "true"
   enable-health-check-loadbalancer-ip: "false"
@@ -243,8 +239,8 @@ data:
   enable-endpoint-health-checking: "true"
   enable-health-checking: "true"
   enable-well-known-identities: "false"
-  enable-node-selector-labels: "false"
   enable-remote-node-identity: "true"
+  enable-node-selector-labels: "false"
   synchronize-k8s-nodes: "true"
   operator-api-serve-addr: 127.0.0.1:9234
   ipam: {{ kube_cilium_ipam_mode }}
@@ -253,16 +249,14 @@ data:
   cluster-pool-ipv4-cidr: {{ kube_cilium_ipam_operator_clusterpoolipv4podcidrlist }}
   cluster-pool-ipv4-mask-size: "{{ kube_cilium_ipam_operator_clusterpoolipv4masksize }}"
 {% endif %}
+  disable-cnp-status-updates: "true"
+  cnp-node-status-gc-interval: 0s
   egress-gateway-reconciliation-trigger-interval: 1s
   enable-vtep: "false"
   vtep-endpoint: ""
   vtep-cidr: ""
   vtep-mask: ""
   vtep-mac: ""
-{% if kube_cilium_k8s_service_proxy_name %}
-  # Configure service proxy name for Cilium.
-  k8s-service-proxy-name: {{ kube_cilium_k8s_service_proxy_name }}
-{% endif %}
   enable-bgp-control-plane: "false"
   bpf-root: /sys/fs/bpf
   cgroup-root: /run/cilium/cgroupv2
@@ -285,17 +279,11 @@ data:
   mesh-auth-queue-size: "1024"
   mesh-auth-rotated-identities-queue-size: "1024"
   mesh-auth-gc-interval: 5m0s
-  proxy-xff-num-trusted-hops-ingress: "0"
-  proxy-xff-num-trusted-hops-egress: "0"
   proxy-connect-timeout: "2"
   proxy-max-requests-per-connection: "0"
   proxy-max-connection-duration-seconds: "0"
-  proxy-idle-timeout-seconds: "60"
   external-envoy-proxy: "false"
-  envoy-base-id: "0"
-  envoy-keep-cap-netbindservice: "false"
   max-connected-clusters: "255"
-  clustermesh-enable-endpoint-sync: "false"
 # Extra config allows adding arbitrary properties to the cilium config.
 # By putting it at the end of the ConfigMap, it's also possible to override existing properties.
 
@@ -607,7 +595,6 @@ rules:
     resources:
       - ciliumloadbalancerippools
       - ciliumpodippools
-      - ciliumbgppeeringpolicies
       - ciliumbgpclusterconfigs
       - ciliumbgpnodeconfigoverrides
     verbs:
