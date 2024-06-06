@@ -21,25 +21,26 @@ kube_cilium_cni_plugin_dirs: /opt/cni/bin
 kube_cilium_network_config_dir: /etc/cni/net.d
 
 # Enable native IP masquerade support in eBPF.
-kube_cilium_bpf_masquerade:
+kube_cilium_bpf_masquerade: true
+  
 # If you want to clean cilium BPF state, set this to true; Removes all BPF
 # maps from the filesystem. Upon restart, endpoints are restored with the
 # same IP addresses, however any ongoing connections may be disrupted
 # briefly. Loadbalancing decisions will be reset, so any ongoing
 # connections via a service may be loadbalanced to a different backend
 # after restart.
-kube_cilium_clean_cilium_bpf_state: false
+kube_cilium_clean_cilium_bpf_state: true
 
 # If a serious issue occurs during Cilium startup, this invasive option
 # may be set to true to remove all persistent state. Endpoints will not be
 # restored using knowledge from a prior Cilium run, so they may receive
 # new IP addresses upon restart. This also triggers
 # clean-cilium-bpf-state.
-kube_cilium_clean_cilium_state: false
+kube_cilium_clean_cilium_state: true
 
 # Enables pre-allocation of eBPF map values. This increases memory usage
 # but can reduce latency.
-kube_cilium_bpf_preallocatemaps: false
+kube_cilium_bpf_preallocatemaps: true
 
 # Unique ID of the cluster. Must be unique across all connected clusters
 # and in the range of 1 to 255. Only required for Cluster Mesh.
@@ -57,6 +58,12 @@ kube_cilium_cni_chainingmode: portmap
 # agent downtime.
 kube_cilium_cni_exclusive: true
 
+# Remove the CNI configuration and binary files on agent shutdown. Enable
+# this if you’re removing Cilium from the cluster. Disable this to prevent
+# the CNI configuration file from being removed during agent upgrade,
+# which can cause nodes to go unmanageable.
+kube_cilium_cni_uninstall: true
+
 # Enables masquerading of IPv4 traffic leaving the node from endpoints.
 kube_cilium_enableipv4masquerade: true
 
@@ -73,15 +80,13 @@ kube_cilium_enableipv6masquerade: false
 
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
-kube_cilium_endpointroutes_enabled:
+kube_cilium_endpointroutes_enabled: false
+  
 # Enable ExternalIPs service support.
 kube_cilium_externalips_enabled: true
 
 # Enable hostPort service support.
 kube_cilium_hostport_enabled: true
-
-# Enable host reachable services.
-kube_cilium_hostservices_enabled: true
 
 # Enable Hubble (true by default).
 kube_cilium_hubble_enabled: false

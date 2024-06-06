@@ -123,8 +123,6 @@ data:
   # sizing of the TCP CT, non-TCP CT, NAT and policy BPF maps.
   bpf-map-dynamic-size-ratio: "0.0025"
 {% if kube_cilium_cni_chainingmode != "none" %}
-  # In cni chaining mode, the other chained plugin is responsible for underlying connectivity,
-  # so cilium eBPF host routing shoud not work, and let it fall back to the legacy routing mode
   enable-host-legacy-routing: "true"
 {% endif %}
   # bpf-policy-map-max specifies the maximum number of entries in endpoint
@@ -182,9 +180,7 @@ data:
   enable-ipv4-big-tcp: "{{ kube_cilium_enableipv4bigtcp | bool | lower }}"
   enable-ipv6-big-tcp: "{{ kube_cilium_enableipv6bigtcp | bool | lower }}"
   enable-ipv6-masquerade: "{{ kube_cilium_enableipv6masquerade | bool | lower }}"
-{% if kube_cilium_bpf_masquerade %}
   enable-bpf-masquerade: "{{ kube_cilium_bpf_masquerade | bool | lower }}"
-{% endif %}
   enable-masquerade-to-route-source: "false"
   enable-xt-socket-fallback: "true"
   install-no-conntrack-iptables-rules: "false"
@@ -197,50 +193,32 @@ data:
 {% if kube_cilium_kubeproxyreplacement != false %}
   kube-proxy-replacement-healthz-bind-address: ""
 {% endif %}
-{% if kube_cilium_hostservices_enabled %}
-  enable-host-reachable-services: "{{ kube_cilium_hostservices_enabled | bool | lower }}"
-{% endif %}
   bpf-lb-sock: "false"
-{% if kube_cilium_hostport_enabled %}
   enable-host-port: "{{ kube_cilium_hostport_enabled | bool | lower }}"
-{% endif %}
-{% if kube_cilium_externalips_enabled %}
   enable-external-ips: "{{ kube_cilium_externalips_enabled | bool | lower }}"
-{% endif %}
-{% if kube_cilium_nodeport_enabled %}
   enable-node-port: "{{ kube_cilium_nodeport_enabled | bool | lower }}"
-{% endif %}
   enable-health-check-nodeport: "true"
   enable-health-check-loadbalancer-ip: "false"
   node-port-bind-protection: "true"
   enable-auto-protect-node-port-range: "true"
   bpf-lb-acceleration: disabled
-{% if kube_cilium_sessionaffinity %}
   enable-session-affinity: "{{ kube_cilium_sessionaffinity | bool | lower }}"
-{% endif %}
   enable-svc-source-range-check: "true"
   enable-l2-neigh-discovery: "true"
   arping-refresh-period: 30s
-{% if kube_cilium_k8s_requireipv4podcidr %}
   k8s-require-ipv4-pod-cidr: "{{ kube_cilium_k8s_requireipv4podcidr | bool | lower }}"
-{% endif %}
-{% if kube_cilium_k8s_requireipv6podcidr %}
   k8s-require-ipv6-pod-cidr: "{{ kube_cilium_k8s_requireipv6podcidr | bool | lower }}"
-{% endif %}
-{% if kube_cilium_endpointroutes_enabled %}
   enable-endpoint-routes: "{{ kube_cilium_endpointroutes_enabled | bool | lower }}"
-{% endif %}
-  cni-uninstall: "true"
   enable-k8s-networkpolicy: "true"
   # Tell the agent to generate and write a CNI configuration file
   write-cni-conf-when-ready: /host/etc/cni/net.d/05-cilium.conflist
   cni-exclusive: "{{ kube_cilium_cni_exclusive | bool | lower }}"
   cni-log-file: /var/run/cilium/cilium-cni.log
+  cni-uninstall: "{{ kube_cilium_cni_uninstall | bool | lower }}"
   enable-endpoint-health-checking: "true"
   enable-health-checking: "true"
   enable-well-known-identities: "false"
   enable-remote-node-identity: "true"
-  enable-node-selector-labels: "false"
   synchronize-k8s-nodes: "true"
   operator-api-serve-addr: 127.0.0.1:9234
   ipam: {{ kube_cilium_ipam_mode }}
@@ -249,8 +227,6 @@ data:
   cluster-pool-ipv4-cidr: {{ kube_cilium_ipam_operator_clusterpoolipv4podcidrlist }}
   cluster-pool-ipv4-mask-size: "{{ kube_cilium_ipam_operator_clusterpoolipv4masksize }}"
 {% endif %}
-  disable-cnp-status-updates: "true"
-  cnp-node-status-gc-interval: 0s
   egress-gateway-reconciliation-trigger-interval: 1s
   enable-vtep: "false"
   vtep-endpoint: ""
@@ -279,9 +255,12 @@ data:
   mesh-auth-queue-size: "1024"
   mesh-auth-rotated-identities-queue-size: "1024"
   mesh-auth-gc-interval: 5m0s
+  proxy-xff-num-trusted-hops-ingress: "0"
+  proxy-xff-num-trusted-hops-egress: "0"
   proxy-connect-timeout: "2"
   proxy-max-requests-per-connection: "0"
   proxy-max-connection-duration-seconds: "0"
+  proxy-idle-timeout-seconds: "60"
   external-envoy-proxy: "false"
   max-connected-clusters: "255"
 # Extra config allows adding arbitrary properties to the cilium config.
