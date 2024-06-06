@@ -180,7 +180,9 @@ data:
   enable-ipv4-big-tcp: "{{ kube_cilium_enableipv4bigtcp | bool | lower }}"
   enable-ipv6-big-tcp: "{{ kube_cilium_enableipv6bigtcp | bool | lower }}"
   enable-ipv6-masquerade: "{{ kube_cilium_enableipv6masquerade | bool | lower }}"
+{% if kube_cilium_bpf_masquerade %}
   enable-bpf-masquerade: "{{ kube_cilium_bpf_masquerade | bool | lower }}"
+{% endif %}
   enable-masquerade-to-route-source: "false"
   enable-xt-socket-fallback: "true"
   install-no-conntrack-iptables-rules: "false"
@@ -194,21 +196,35 @@ data:
   kube-proxy-replacement-healthz-bind-address: ""
 {% endif %}
   bpf-lb-sock: "false"
+{% if kube_cilium_hostport_enabled %}
   enable-host-port: "{{ kube_cilium_hostport_enabled | bool | lower }}"
+{% endif %}
+{% if kube_cilium_externalips_enabled %}
   enable-external-ips: "{{ kube_cilium_externalips_enabled | bool | lower }}"
+{% endif %}
+{% if kube_cilium_nodeport_enabled %}
   enable-node-port: "{{ kube_cilium_nodeport_enabled | bool | lower }}"
+{% endif %}
   enable-health-check-nodeport: "true"
   enable-health-check-loadbalancer-ip: "false"
   node-port-bind-protection: "true"
   enable-auto-protect-node-port-range: "true"
   bpf-lb-acceleration: disabled
+{% if kube_cilium_sessionaffinity %}
   enable-session-affinity: "{{ kube_cilium_sessionaffinity | bool | lower }}"
+{% endif %}
   enable-svc-source-range-check: "true"
   enable-l2-neigh-discovery: "true"
   arping-refresh-period: 30s
+{% if kube_cilium_k8s_requireipv4podcidr %}
   k8s-require-ipv4-pod-cidr: "{{ kube_cilium_k8s_requireipv4podcidr | bool | lower }}"
+{% endif %}
+{% if kube_cilium_k8s_requireipv6podcidr %}
   k8s-require-ipv6-pod-cidr: "{{ kube_cilium_k8s_requireipv6podcidr | bool | lower }}"
+{% endif %}
+{% if kube_cilium_endpointroutes_enabled %}
   enable-endpoint-routes: "{{ kube_cilium_endpointroutes_enabled | bool | lower }}"
+{% endif %}
   enable-k8s-networkpolicy: "true"
   # Tell the agent to generate and write a CNI configuration file
   write-cni-conf-when-ready: /host/etc/cni/net.d/05-cilium.conflist
