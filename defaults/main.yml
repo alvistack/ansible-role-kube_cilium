@@ -22,7 +22,7 @@ kube_cilium_network_config_dir: /etc/cni/net.d
 
 # Enable native IP masquerade support in eBPF.
 kube_cilium_bpf_masquerade: false
-  
+
 # If you want to clean cilium BPF state, set this to true; Removes all BPF
 # maps from the filesystem. Upon restart, endpoints are restored with the
 # same IP addresses, however any ongoing connections may be disrupted
@@ -81,7 +81,7 @@ kube_cilium_enableipv6masquerade: false
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
 kube_cilium_endpointroutes_enabled: false
-  
+
 # Enable ExternalIPs service support.
 kube_cilium_externalips_enabled: true
 
