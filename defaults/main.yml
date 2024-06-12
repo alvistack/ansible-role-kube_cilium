@@ -21,7 +21,8 @@ kube_cilium_cni_plugin_dirs: /opt/cni/bin
 kube_cilium_network_config_dir: /etc/cni/net.d
 
 # Enable native IP masquerade support in eBPF.
-kube_cilium_bpf_masquerade:
+kube_cilium_bpf_masquerade: false
+
 # If you want to clean cilium BPF state, set this to true; Removes all BPF
 # maps from the filesystem. Upon restart, endpoints are restored with the
 # same IP addresses, however any ongoing connections may be disrupted
@@ -57,6 +58,12 @@ kube_cilium_cni_chainingmode: portmap
 # agent downtime.
 kube_cilium_cni_exclusive: true
 
+# Remove the CNI configuration and binary files on agent shutdown. Enable
+# this if you’re removing Cilium from the cluster. Disable this to prevent
+# the CNI configuration file from being removed during agent upgrade,
+# which can cause nodes to go unmanageable.
+kube_cilium_cni_uninstall: true
+
 # Enables masquerading of IPv4 traffic leaving the node from endpoints.
 kube_cilium_enableipv4masquerade: true
 
@@ -73,15 +80,13 @@ kube_cilium_enableipv6masquerade: false
 
 # Enable use of per endpoint routes instead of routing via the
 # cilium_host interface.
-kube_cilium_endpointroutes_enabled:
+kube_cilium_endpointroutes_enabled: false
+
 # Enable ExternalIPs service support.
 kube_cilium_externalips_enabled: true
 
 # Enable hostPort service support.
 kube_cilium_hostport_enabled: true
-
-# Enable host reachable services.
-kube_cilium_hostservices_enabled: true
 
 # Enable Hubble (true by default).
 kube_cilium_hubble_enabled: false
@@ -111,9 +116,6 @@ kube_cilium_k8s_requireipv4podcidr: false
 # Enables waiting for Kubernetes to provide the PodCIDR range via the
 # Kubernetes node resource.
 kube_cilium_k8s_requireipv6podcidr: false
-
-# Configure service proxy name for Cilium.
-kube_cilium_k8s_service_proxy_name: nonexistent
 
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: false

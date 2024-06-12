@@ -63,6 +63,7 @@ data:
   identity-gc-interval: 15m0s
   cilium-endpoint-gc-interval: 5m0s
   nodes-gc-interval: 5m0s
+  skip-cnp-status-startup-clean: "false"
   # If you want to run cilium in debug mode change this value to true
   debug: "false"
   debug-verbose: ""
@@ -122,8 +123,6 @@ data:
   # sizing of the TCP CT, non-TCP CT, NAT and policy BPF maps.
   bpf-map-dynamic-size-ratio: "0.0025"
 {% if kube_cilium_cni_chainingmode != "none" %}
-  # In cni chaining mode, the other chained plugin is responsible for underlying connectivity,
-  # so cilium eBPF host routing shoud not work, and let it fall back to the legacy routing mode
   enable-host-legacy-routing: "true"
 {% endif %}
   # bpf-policy-map-max specifies the maximum number of entries in endpoint
@@ -133,9 +132,6 @@ data:
   # backend and affinity maps.
   bpf-lb-map-max: "65536"
   bpf-lb-external-clusterip: "false"
-  bpf-events-drop-enabled: "true"
-  bpf-events-policy-verdict-enabled: "true"
-  bpf-events-trace-enabled: "true"
   # Pre-allocation of map entries allows per-packet latency to be reduced, at
   # the expense of up-front memory allocation for the entries in the maps. The
   # default value below will minimize memory usage in the default installation;
@@ -187,7 +183,6 @@ data:
 {% if kube_cilium_bpf_masquerade %}
   enable-bpf-masquerade: "{{ kube_cilium_bpf_masquerade | bool | lower }}"
 {% endif %}
-  enable-tcx: "true"
   enable-masquerade-to-route-source: "false"
   enable-xt-socket-fallback: "true"
   install-no-conntrack-iptables-rules: "false"
@@ -200,9 +195,6 @@ data:
 {% if kube_cilium_kubeproxyreplacement != false %}
   kube-proxy-replacement-healthz-bind-address: ""
 {% endif %}
-{% if kube_cilium_hostservices_enabled %}
-  enable-host-reachable-services: "{{ kube_cilium_hostservices_enabled | bool | lower }}"
-{% endif %}
   bpf-lb-sock: "false"
 {% if kube_cilium_hostport_enabled %}
   enable-host-port: "{{ kube_cilium_hostport_enabled | bool | lower }}"
@@ -212,7 +204,6 @@ data:
 {% endif %}
 {% if kube_cilium_nodeport_enabled %}
   enable-node-port: "{{ kube_cilium_nodeport_enabled | bool | lower }}"
-  nodeport-addresses: ""
 {% endif %}
   enable-health-check-nodeport: "true"
   enable-health-check-loadbalancer-ip: "false"
@@ -234,16 +225,15 @@ data:
 {% if kube_cilium_endpointroutes_enabled %}
   enable-endpoint-routes: "{{ kube_cilium_endpointroutes_enabled | bool | lower }}"
 {% endif %}
-  cni-uninstall: "true"
   enable-k8s-networkpolicy: "true"
   # Tell the agent to generate and write a CNI configuration file
   write-cni-conf-when-ready: /host/etc/cni/net.d/05-cilium.conflist
   cni-exclusive: "{{ kube_cilium_cni_exclusive | bool | lower }}"
   cni-log-file: /var/run/cilium/cilium-cni.log
+  cni-uninstall: "{{ kube_cilium_cni_uninstall | bool | lower }}"
   enable-endpoint-health-checking: "true"
   enable-health-checking: "true"
   enable-well-known-identities: "false"
-  enable-node-selector-labels: "false"
   enable-remote-node-identity: "true"
   synchronize-k8s-nodes: "true"
   operator-api-serve-addr: 127.0.0.1:9234
@@ -259,8 +249,6 @@ data:
   vtep-cidr: ""
   vtep-mask: ""
   vtep-mac: ""
-  # Configure service proxy name for Cilium.
-  k8s-service-proxy-name: {{ kube_cilium_k8s_service_proxy_name }}
   enable-bgp-control-plane: "false"
   bpf-root: /sys/fs/bpf
   cgroup-root: /run/cilium/cgroupv2
@@ -290,10 +278,7 @@ data:
   proxy-max-connection-duration-seconds: "0"
   proxy-idle-timeout-seconds: "60"
   external-envoy-proxy: "false"
-  envoy-base-id: "0"
-  envoy-keep-cap-netbindservice: "false"
   max-connected-clusters: "255"
-  clustermesh-enable-endpoint-sync: "false"
 # Extra config allows adding arbitrary properties to the cilium config.
 # By putting it at the end of the ConfigMap, it's also possible to override existing properties.
 
@@ -605,7 +590,6 @@ rules:
     resources:
       - ciliumloadbalancerippools
       - ciliumpodippools
-      - ciliumbgppeeringpolicies
       - ciliumbgpclusterconfigs
       - ciliumbgpnodeconfigoverrides
     verbs:
@@ -752,7 +736,7 @@ spec:
     spec:
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.15.5
+          image: quay.io/cilium/cilium:v1.15.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -869,7 +853,7 @@ spec:
               mountPath: /tmp
       initContainers:
         - name: config
-          image: quay.io/cilium/cilium:v1.15.5
+          image: quay.io/cilium/cilium:v1.15.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-dbg
@@ -892,7 +876,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.15.5
+          image: quay.io/cilium/cilium:v1.15.6
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -920,7 +904,7 @@ spec:
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
-          image: quay.io/cilium/cilium:v1.15.5
+          image: quay.io/cilium/cilium:v1.15.6
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
@@ -947,7 +931,7 @@ spec:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.15.5
+          image: quay.io/cilium/cilium:v1.15.6
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -963,7 +947,7 @@ spec:
               mountPath: /tmp/cilium-bootstrap.d
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.15.5
+          image: quay.io/cilium/cilium:v1.15.6
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -1000,7 +984,7 @@ spec:
               mountPath: /var/run/cilium # wait-for-kube-proxy
         # Install the CNI binaries in an InitContainer so we don't have a writable host mount in the agent
         - name: install-cni-binaries
-          image: quay.io/cilium/cilium:v1.15.5
+          image: quay.io/cilium/cilium:v1.15.6
           imagePullPolicy: IfNotPresent
           command:
             - /install-plugin.sh
@@ -1244,7 +1228,7 @@ spec:
     spec:
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.15.5
+          image: quay.io/cilium/operator-generic:v1.15.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
