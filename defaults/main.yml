@@ -117,6 +117,10 @@ kube_cilium_k8s_requireipv4podcidr: false
 # Kubernetes node resource.
 kube_cilium_k8s_requireipv6podcidr: false
 
+# Configure service proxy name for Cilium (!!null or `nonexistent`).
+# See https://github.com/kubernetes/kubernetes/pull/120069#issuecomment-2111252221
+kube_cilium_k8s_service_proxy_name: nonexistent
+
 # Controls how to enable kube-proxy replacement features in BPF datapath.
 kube_cilium_kubeproxyreplacement: false
 
