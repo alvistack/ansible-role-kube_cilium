@@ -760,9 +760,12 @@ spec:
         app.kubernetes.io/part-of: cilium
         addonmanager.kubernetes.io/mode: Reconcile
     spec:
+      securityContext:
+        appArmorProfile:
+          type: Unconfined
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.16.5
+          image: quay.io/cilium/cilium:v1.16.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-agent
@@ -864,6 +867,9 @@ spec:
               mountPropagation: Bidirectional
             - name: cilium-run
               mountPath: /var/run/cilium
+            - name: cilium-netns
+              mountPath: /var/run/cilium/netns
+              mountPropagation: HostToContainer
             - name: etc-cni-netd
               mountPath: /host/etc/cni/net.d
             - name: clustermesh-secrets
@@ -879,7 +885,7 @@ spec:
               mountPath: /tmp
       initContainers:
         - name: config
-          image: quay.io/cilium/cilium:v1.16.5
+          image: quay.io/cilium/cilium:v1.16.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-dbg
@@ -902,7 +908,7 @@ spec:
         # Required to mount cgroup2 filesystem on the underlying Kubernetes node.
         # We use nsenter command with host's cgroup and mount namespaces enabled.
         - name: mount-cgroup
-          image: quay.io/cilium/cilium:v1.16.5
+          image: quay.io/cilium/cilium:v1.16.6
           imagePullPolicy: IfNotPresent
           env:
             - name: CGROUP_ROOT
@@ -930,7 +936,7 @@ spec:
           securityContext:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
         - name: apply-sysctl-overwrites
-          image: quay.io/cilium/cilium:v1.16.5
+          image: quay.io/cilium/cilium:v1.16.6
           imagePullPolicy: IfNotPresent
           env:
             - name: BIN_PATH
@@ -957,7 +963,7 @@ spec:
             privileged: {{ kube_cilium_nodeinit_securitycontext_privileged | bool | lower }}
 {% if kube_cilium_nodeinit_enabled == true %}
         - name: wait-for-node-init
-          image: quay.io/cilium/cilium:v1.16.5
+          image: quay.io/cilium/cilium:v1.16.6
           imagePullPolicy: IfNotPresent
           command:
             - sh
@@ -973,7 +979,7 @@ spec:
               mountPath: /tmp/cilium-bootstrap.d
 {% endif %}
         - name: clean-cilium-state
-          image: quay.io/cilium/cilium:v1.16.5
+          image: quay.io/cilium/cilium:v1.16.6
           imagePullPolicy: IfNotPresent
           command:
             - /init-container.sh
@@ -1010,7 +1016,7 @@ spec:
               mountPath: /var/run/cilium # wait-for-kube-proxy
         # Install the CNI binaries in an InitContainer so we don't have a writable host mount in the agent
         - name: install-cni-binaries
-          image: quay.io/cilium/cilium:v1.16.5
+          image: quay.io/cilium/cilium:v1.16.6
           imagePullPolicy: IfNotPresent
           command:
             - /install-plugin.sh
@@ -1052,6 +1058,11 @@ spec:
         - name: cilium-run
           hostPath:
             path: /var/run/cilium
+            type: DirectoryOrCreate
+        # To exec into pod network namespaces
+        - name: cilium-netns
+          hostPath:
+            path: /var/run/netns
             type: DirectoryOrCreate
         # To keep state between restarts / upgrades for bpf maps
         - name: bpf-maps
@@ -1162,6 +1173,9 @@ spec:
         app.kubernetes.io/part-of: cilium
         addonmanager.kubernetes.io/mode: Reconcile
     spec:
+      securityContext:
+        appArmorProfile:
+          type: Unconfined
       containers:
         - name: node-init
           image: quay.io/cilium/startup-script:c54c7edeab7fde4da68e59acd319ab24af242c3f
@@ -1267,7 +1281,7 @@ spec:
     spec:
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator-generic:v1.16.5
+          image: quay.io/cilium/operator-generic:v1.16.6
           imagePullPolicy: IfNotPresent
           command:
             - cilium-operator-generic
